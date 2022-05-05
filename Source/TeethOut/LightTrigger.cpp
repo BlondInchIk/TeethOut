@@ -13,13 +13,17 @@ ALightTrigger::ALightTrigger()
 	MyLightComponent = CreateDefaultSubobject<URectLightComponent>(TEXT("LightComponent"));
 	MyLightComponent->SetupAttachment(RootComponent);
 
-	MyLightComponent->Intensity = 100000.0f;
+	MyLightComponent->Intensity = 1000.0f;
+
+
 }
 
 // Called when the game starts or when spawned
 void ALightTrigger::BeginPlay()
 {
 	Super::BeginPlay();
+
+	SetLightDisabled();
 	
 }
 
@@ -28,5 +32,15 @@ void ALightTrigger::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+}
+
+void ALightTrigger::SetLightEnabled()
+{
+	MyLightComponent->SetVisibility(true);
+}
+
+void ALightTrigger::SetLightDisabled()
+{
+	MyLightComponent->SetVisibility(false);
 }
 

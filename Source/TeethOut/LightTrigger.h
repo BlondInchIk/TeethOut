@@ -26,4 +26,10 @@ public:
 	UPROPERTY(VisibleAnyWhere, BlueprintReadOnly, Category = Camera)
 		class URectLightComponent* MyLightComponent;
 
+
+	UFUNCTION()
+		void SetLightEnabled();
+
+	UFUNCTION()
+		void SetLightDisabled();
 };
