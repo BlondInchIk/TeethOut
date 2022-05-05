@@ -15,6 +15,6 @@ Our ~fucking~ <strong>great</strong> team is:
 > 
 ><em>PS Мёртвый ребёнок</em>
 
-[https://vk.com/s/v1/doc/zFIJI2bZK6EMJeJ35-tNFXmH2iSU8IvNSbR-n612elDpxaTJOvU]
+<img src="https://vk.com/s/v1/doc/zFIJI2bZK6EMJeJ35-tNFXmH2iSU8IvNSbR-n612elDpxaTJOvU" width="200" height="100">
 
 Developed with Unreal Engine 5
