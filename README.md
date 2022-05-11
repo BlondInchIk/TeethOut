@@ -17,5 +17,5 @@ Our ~fucking~ <strong>great</strong> team is:
 
 <img src="https://disgustingmen.com/wp-content/uploads/2017/08/beardman-6.jpg" width="2000" height="200">
 <img src="picture.gif" width="2000" height="200">
-<img src="https://giphy.com/gifs/rock-coding-programming-MdA16VIoXKKxNE8Stk" width="2000" height="200">
+<img src="giphy.gif" width="2000" height="200">
 Developed with Unreal Engine 5
