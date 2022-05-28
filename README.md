@@ -16,6 +16,7 @@ Our ~fucking~ <strong>great</strong> team is:
 ><em>PS Мёртвый ребёнок</em>
 
 <img src="https://disgustingmen.com/wp-content/uploads/2017/08/beardman-6.jpg" width="2000" height="200">
+<img src="https://i.ucrazy.ru/files/pics/2019.06/1561300017_1a9e00537bd03852eb51.jpg" width="2000" height="200">
 <img src="picture.gif" width="2000" height="200">
-
+<img src="giphy.gif" width="2000" height="400">
 Developed with Unreal Engine 5
