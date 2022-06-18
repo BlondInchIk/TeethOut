@@ -12,7 +12,7 @@ AMainCharacter::AMainCharacter()
 	PrimaryActorTick.bCanEverTick = true;
 
 	//Установление размера капсуля персонажа
-	GetCapsuleComponent()->InitCapsuleSize(42.0f, 100.0f);
+	GetCapsuleComponent()->InitCapsuleSize(45.0f, 100.0f);
 
 	//Зависимость поворота персонажа от камеры
 	bUseControllerRotationPitch = false;
@@ -22,20 +22,21 @@ AMainCharacter::AMainCharacter()
 	//Создание и настройка SpringArm - рука держащая камеру
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
 	CameraBoom->SetupAttachment(RootComponent);
-	CameraBoom->TargetArmLength = 400.0f;
+	CameraBoom->TargetArmLength = 40.0f;
 	CameraBoom->bUsePawnControlRotation = true;
 
 	//Создание и настройка камеры
 	FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
 	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
 	FollowCamera->bUsePawnControlRotation = false;
+	FollowCamera->SetWorldLocation(FVector(10.0f,0.0f,40.0f));
 
 	//Настройка передвижения
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 	GetCharacterMovement()->RotationRate = FRotator(0.0f, 540.0f, 0.0f);
-	GetCharacterMovement()->JumpZVelocity = 700.0f;
-	GetCharacterMovement()->AirControl = 0.2f;
-	GetCharacterMovement()->MaxWalkSpeed = 400.0f;
+	GetCharacterMovement()->JumpZVelocity = 200.0f;
+	GetCharacterMovement()->AirControl = 0.4f;
+	GetCharacterMovement()->MaxWalkSpeed = 200.0f;
 	GetCharacterMovement()->SetWalkableFloorAngle(30);
 
 	//Инициализация смерти персонажа
@@ -109,6 +110,7 @@ void AMainCharacter::Jump()
 	{
 		//Прыжок
 		ACharacter::Jump();
+		ACharacter::
 	}
 }
 
