@@ -39,6 +39,8 @@ AMainCharacter::AMainCharacter()
 	GetCharacterMovement()->MaxWalkSpeed = 200.0f;
 	GetCharacterMovement()->SetWalkableFloorAngle(30);
 
+
+
 	//Инициализация смерти персонажа
 	bDead = false;
 }
