@@ -5,13 +5,15 @@
 #include "CoreMinimal.h"
 #include "GameFramework/GameModeBase.h"
 #include "TeethOutGameModeBase.generated.h"
-
-/**
- * 
- */
-UCLASS()
-class TEETHOUT_API ATeethOutGameModeBase : public AGameModeBase
+//TeethOutGameModeBase.generated.h
+UCLASS(minimalapi)
+class AEnemy_AIGameMode : public AGameModeBase
 {
 	GENERATED_BODY()
-	
+
+public:
+	AEnemy_AIGameMode();
 };
+
+
+
