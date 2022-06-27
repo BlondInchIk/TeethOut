@@ -2,8 +2,8 @@
 ## Gachi slaves Corporation
 Our great</strong> team is:
 - Павленко Арсений
-- Фроллов Максим
+- Фролов Максим
 - Санников Владимир
-
+- Фомин Саша
 
 Developed with Unreal Engine 5
