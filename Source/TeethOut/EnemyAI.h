@@ -7,35 +7,42 @@
 #include "EnemyAI.generated.h"
 
 UCLASS()
-class TEETHOUT_API AEnemyAI : public ACharacter
+class ENEMY_AI_API AEnemyAI : public ACharacter
 {
 	GENERATED_BODY()
 
 public:
-	// Sets default values for this character's properties
+	// Вызов функции для установки default
 	AEnemyAI();
 
 protected:
-	// Called when the game starts or when spawned
+	// Вызывается при начале игры
 	virtual void BeginPlay() override;
 
 public:	
+	// Вызывается тик
+	virtual void Tick(float DeltaTime) override;
 
+	// Биндинг
+	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+
+public:
+	//Объявление переменных
 	bool PlayerDetected;
 	bool CanAttackPlayer;
 	bool CanDealDamage;
 
-	class MainCharacter* PlayerREF;
+	//объявление класса
+	class Enemy_AICharacter* PlayerREF;
 
-	UPROPERTY(EditAnyWhere)
+	//Объявление зон для ИИ(обнаружение игрока)
+	UPROPERTY(EditAnywhere)
 		class USphereComponent* PlayerCollisionDetection;
 
-	UPROPERTY(EditAnyWhere)
+	UPROPERTY(EditAnywhere)
 		class USphereComponent* PlayerAttackCollisionDetection;
 
-	UPROPERTY(EditAnyWhere)
+	UPROPERTY(EditAnywhere)
 		class UBoxComponent* DamageCollision;
 
-	virtual void Tick(float DeltaTime) override;
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 };

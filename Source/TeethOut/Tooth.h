@@ -4,8 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "Tooth.generated.h"
 #include "Components/BoxComponent.h"
+#include "Tooth.generated.h"
 
 UCLASS()
 class TEETHOUT_API ATooth : public AActor
@@ -13,24 +13,21 @@ class TEETHOUT_API ATooth : public AActor
 	GENERATED_BODY()
 	
 public:	
-	// Sets default values for this actor's properties
 	ATooth();
 
 protected:
-	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
 public:	
-	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	UFUNCTION(BlueprtintCallable)
+	UFUNCTION(BlueprintCallable)
 		bool SpawnActor();
 
 	void ScheduleActorSpawn();
 
 private:
-	UPROPERTY(EditDefaultOnly)
+	UPROPERTY(EditDefaultsOnly)
 		UBoxComponent* SpawnBox;
 
 	UPROPERTY(EditAnywhere)

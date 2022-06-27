@@ -4,8 +4,9 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/GameModeBase.h"
-#include "TeethOutGameModeBase.generated.h"
-//TeethOutGameModeBase.generated.h
+#include "Enemy_AIGameMode.generated.h"
+
+// Установка персонажа по умолчанию
 UCLASS(minimalapi)
 class AEnemy_AIGameMode : public AGameModeBase
 {

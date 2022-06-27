@@ -1,31 +1,29 @@
-// // Fill out your copyright notice in the Description page of Project Settings.
+// Fill out your copyright notice in the Description page of Project Settings.
 
-// #pragma once
+#pragma once
 
-// #include "CoreMinimal.h"
-// #include "AIController.h"
-// #include "MutantAIController.generated.h"
+#include "CoreMinimal.h"
+#include "AIController.h"
+#include "MutantAIController.generated.h"
 
-// /**
-//  *
-//  */
-// UCLASS()
-// class TEETHOUT_API AMutantAIController : public AAIController
-// {
-//     GENERATED_BODY()
+//Объявление класса для навигации
+UCLASS()
+class ENEMY_AI_API AMutantAIController : public AAIController
+{
+	GENERATED_BODY()
+	
+public:
+    void BeginPlay() override;
 
-// public:
-//     void BeginPlay() override;
+private:
 
-// private:
+    class UNavigationSystemV1* NavArea;
 
-//     // class UNavigationSystemV1* NavArea;
+    FVector RandomLocation;
 
-//     // FVector RandomLocation;
+public:
 
-// public:
+    UFUNCTION()
+        void RandomPatrol();
 
-//     UFUNCTION()
-//         void RandomPatrol();
-
-// };
+};
