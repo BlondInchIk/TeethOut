@@ -1,4 +1,7 @@
+// Copyright Epic Games, Inc. All Rights Reserved.
+
 #include "MainCharacter.h"
+#include "HeadMountedDisplayFunctionLibrary.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/InputComponent.h"
@@ -6,120 +9,132 @@
 #include "GameFramework/Controller.h"
 #include "GameFramework/SpringArmComponent.h"
 
-//sets default values
+//////////////////////////////////////////////////////////////////////////
+// AMainCharacter
+
 AMainCharacter::AMainCharacter()
 {
-	PrimaryActorTick.bCanEverTick = true;
+	// Set size for collision capsule
+	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
 
-	//Установление размера капсуля персонажа
-	GetCapsuleComponent()->InitCapsuleSize(45.0f, 100.0f);
+	// set our turn rates for input
+	BaseTurnRate = 45.f;
+	BaseLookUpRate = 45.f;
 
-	//Зависимость поворота персонажа от камеры
+	// Don't rotate when the controller rotates. Let that just affect the camera.
 	bUseControllerRotationPitch = false;
-	bUseControllerRotationRoll = false;
 	bUseControllerRotationYaw = false;
+	bUseControllerRotationRoll = false;
 
-	//Создание и настройка SpringArm - рука держащая камеру
-	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
-	CameraBoom->SetupAttachment(RootComponent);
-	CameraBoom->TargetArmLength = 40.0f;
-	CameraBoom->bUsePawnControlRotation = true;
-
-	//Создание и настройка камеры
-	FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
-	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
-	FollowCamera->bUsePawnControlRotation = false;
-	FollowCamera->SetWorldLocation(FVector(10.0f,0.0f,40.0f));
-
-	//Настройка передвижения
-	GetCharacterMovement()->bOrientRotationToMovement = true;
-	GetCharacterMovement()->RotationRate = FRotator(0.0f, 540.0f, 0.0f);
-	GetCharacterMovement()->JumpZVelocity = 200.0f;
-	GetCharacterMovement()->AirControl = 0.4f;
+	// Configure character movement
+	GetCharacterMovement()->bOrientRotationToMovement = true; // Character moves in the direction of input...	
+	GetCharacterMovement()->RotationRate = FRotator(0.0f, 540.0f, 0.0f); // ...at this rotation rate
+	GetCharacterMovement()->JumpZVelocity = 400.f;
+	GetCharacterMovement()->AirControl = 0.2f;
 	GetCharacterMovement()->MaxWalkSpeed = 200.0f;
 	GetCharacterMovement()->SetWalkableFloorAngle(30);
 
+	// Create a camera boom (pulls in towards the player if there is a collision)
+	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
+	CameraBoom->SetupAttachment(RootComponent);
+	CameraBoom->TargetArmLength = 0.0f; // The camera follows at this distance behind the character	
+	CameraBoom->bUsePawnControlRotation = true; // Rotate the arm based on the controller
 
+	// Create a follow camera
+	FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
+	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName); // Attach the camera to the end of the boom and let the boom adjust to match the controller orientation
+	FollowCamera->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
 
-	//Инициализация смерти персонажа
-	bDead = false;
+	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
+	// are set in the derived blueprint asset named MyCharacter (to avoid direct content references in C++)
 }
 
-// Called when the game starts or when spawned
-void AMainCharacter::BeginPlay()
+//////////////////////////////////////////////////////////////////////////
+// Input
+
+void AMainCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
 {
-	Super::BeginPlay();
-}
+	// Set up gameplay key bindings
+	check(PlayerInputComponent);
+	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
+	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
 
-// Called every frame
-void AMainCharacter::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-}
-
-// Called to bind functionality to input
-void AMainCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
-{
-	Super::SetupPlayerInputComponent(PlayerInputComponent);
-
-	//Поворот камеры
-	PlayerInputComponent->BindAxis("Turn Right / Left Mouse", this, &APawn::AddControllerYawInput);
-	PlayerInputComponent->BindAxis("Look Up / Down Mouse", this, &APawn::AddControllerPitchInput);
-
-	//Прыжок и остановка прыжка
-	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &AMainCharacter::Jump);
-	PlayerInputComponent->BindAction("Jump", IE_Released, this, &AMainCharacter::StopJumping);
-
-	//Движение вперед-назад и влево-вправо
 	PlayerInputComponent->BindAxis("Move Forward / Backward", this, &AMainCharacter::MoveForward);
 	PlayerInputComponent->BindAxis("Move Right / Left", this, &AMainCharacter::MoveRight);
 
+	// We have 2 versions of the rotation bindings to handle different kinds of devices differently
+	// "turn" handles devices that provide an absolute delta, such as a mouse.
+	// "turnrate" is for devices that we choose to treat as a rate of change, such as an analog joystick
+	PlayerInputComponent->BindAxis("Turn Right / Left Mouse", this, &APawn::AddControllerYawInput);
+	PlayerInputComponent->BindAxis("Look Up / Down Mouse", this, &APawn::AddControllerPitchInput);
+
+	// handle touch devices
+	PlayerInputComponent->BindTouch(IE_Pressed, this, &AMainCharacter::TouchStarted);
+	PlayerInputComponent->BindTouch(IE_Released, this, &AMainCharacter::TouchStopped);
+
+	// VR headset functionality
+	PlayerInputComponent->BindAction("ResetVR", IE_Pressed, this, &AMainCharacter::OnResetVR);
 }
 
-//Движение вперед-назад
-void AMainCharacter::MoveForward(float Axis)
+
+void AMainCharacter::OnResetVR()
 {
-	if ((Controller != NULL) && (Axis != 0.0f) && (bDead != true))
+	// If Enemy_AI is added to a project via 'Add Feature' in the Unreal Editor the dependency on HeadMountedDisplay in Enemy_AI.Build.cs is not automatically propagated
+	// and a linker error will result.
+	// You will need to either:
+	//		Add "HeadMountedDisplay" to [YourProject].Build.cs PublicDependencyModuleNames in order to build successfully (appropriate if supporting VR).
+	// or:
+	//		Comment or delete the call to ResetOrientationAndPosition below (appropriate if not supporting VR)
+	UHeadMountedDisplayFunctionLibrary::ResetOrientationAndPosition();
+}
+
+void AMainCharacter::TouchStarted(ETouchIndex::Type FingerIndex, FVector Location)
+{
+	Jump();
+}
+
+void AMainCharacter::TouchStopped(ETouchIndex::Type FingerIndex, FVector Location)
+{
+	StopJumping();
+}
+
+void AMainCharacter::TurnAtRate(float Rate)
+{
+	// calculate delta for this frame from the rate information
+	AddControllerYawInput(Rate * BaseTurnRate * GetWorld()->GetDeltaSeconds());
+}
+
+void AMainCharacter::LookUpAtRate(float Rate)
+{
+	// calculate delta for this frame from the rate information
+	AddControllerPitchInput(Rate * BaseLookUpRate * GetWorld()->GetDeltaSeconds());
+}
+
+void AMainCharacter::MoveForward(float Value)
+{
+	if ((Controller != nullptr) && (Value != 0.0f))
 	{
-		//Получение угла направление камеры по оси Yaw
+		// find out which way is forward
 		const FRotator Rotation = Controller->GetControlRotation();
 		const FRotator YawRotation(0, Rotation.Yaw, 0);
 
-		//Рассчитываем вектор движения и задаем движение
+		// get forward vector
 		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
-		AddMovementInput(Direction, Axis);
+		AddMovementInput(Direction, Value);
 	}
 }
 
-//Движение влево-вправо
-void AMainCharacter::MoveRight(float Axis)
+void AMainCharacter::MoveRight(float Value)
 {
-	if ((Controller != NULL) && (Axis != 0.0f) && (bDead != true))
+	if ((Controller != nullptr) && (Value != 0.0f))
 	{
-		//Получение угла направление камеры по оси Yaw
+		// find out which way is right
 		const FRotator Rotation = Controller->GetControlRotation();
 		const FRotator YawRotation(0, Rotation.Yaw, 0);
 
-		//Рассчитываем вектор движения и задаем движение
+		// get right vector 
 		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
-		AddMovementInput(Direction, Axis);
-	}
-}
-
-void AMainCharacter::Jump()
-{
-	if ((Controller != NULL) && (bDead != true))
-	{
-		//Прыжок
-		ACharacter::Jump();
-	}
-}
-
-void AMainCharacter::StopJumping()
-{
-	if ((Controller != NULL) && (bDead != true))
-	{
-		//Прекращение прыжка
-		ACharacter::StopJumping();
+		// add movement in that direction
+		AddMovementInput(Direction, Value);
 	}
 }
