@@ -1,6 +1,6 @@
 # TeethOut
 ## Gachi slaves Corporation
-Our ~fucking~ <strong>great</strong> team is:
+Our great</strong> team is:
 - Павленко Арсений
 - Фроллов Максим
 - Санников Владимир
